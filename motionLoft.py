@@ -65,6 +65,16 @@ class randOneFive():
         newThread.start()
         self.randQueue.join()
         
-    
 
+
+x = randOneFive()
+
+x.writer()    
+
+
+#generate 5 threads running the generateRand()
+for i in range(5):
+    worker = threading.Thread(target=x.generateRand())
+    worker.setDaemon(True)
+    worker.start()
 
