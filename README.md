@@ -1,3 +1,5 @@
+I am using Python 3.6 and doing the Random Count Generator problem
+
 Notes about my implementation:
 
 	Part 1: only print out a random integer between 1 - 5 with the required frequencies
