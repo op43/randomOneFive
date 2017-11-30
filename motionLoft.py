@@ -1,15 +1,21 @@
 
 
 import random
-import time
+import datetime
+import queue
+import threading
 
-##Part 3 Add the write to disk method
+
+##Part 4 Change the writer function to be a single thread which writes from a queue
+
 class randOneFive():
     
     def __init__(self):
         self.history = []
+        self.randQueue = queue.Queue(maxsize = 0)
         
-    #Generates a random number between 1 and 5 and inserts it into the history array  
+    #Generates a random number between 1 and 5 and inserts it into the history array 
+    #Also insert a tuple of the number and the timestamp it was created
     def generateRand(self):
         randSeed = random.randint(0, 99);
         freqRate = [50,25,15,5,5]
@@ -18,6 +24,7 @@ class randOneFive():
             for j in range(freqRate[i]):
                 actualFreq.append(i+1)
         self.addHistory(actualFreq[randSeed])
+        self.randQueue.put((actualFreq[randSeed], str(datetime.datetime.now())))
     
     #Add a number into the history array. If there are 100 items in the array, delete
     #the earliest one and then append the number
@@ -39,13 +46,25 @@ class randOneFive():
             frequency.append(frequencyString)
         return frequency
         
-    #writes the most recent random int in history plus the timestamp when this method was called
-    #if no history exists, do nothing. If file exists, append to the next line
+    #worker function to write the most recent queue value into disk
     def writeToDisk(self):
-        file = open('disk.txt','a')
-        if len(self.history) > 0:
-            #python index -1 points to the last/recent object in the array
-            recentRand = str(self.history[-1]) + '\t' + time.strftime("%a, %d %b %Y %H:%M:%S") + '\n'
+        while True:
+            randTuple = self.randQueue.get()
+            if randTuple is None:
+                break
+            file = open('disk.txt','a')
+            recentRand = str(randTuple[0]) + '\t' + str(randTuple[1]) + '\n'
             file.write(recentRand)
-        file.close()   
+            file.close()   
+            self.randQueue.task_done()
+    
+    #writer is a single thread that looks at writeToDisk for values in the queue
+    #which it then writes the number and the timestamp into the queue
+    def writer(self):
+        newThread = threading.Thread(target=self.writeToDisk)
+        newThread.start()
+        self.randQueue.join()
+        
+    
+
 
