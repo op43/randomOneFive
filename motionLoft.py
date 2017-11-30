@@ -6,7 +6,7 @@ import queue
 import threading
 
 
-##Part 4 Change the writer function to be a single thread which writes from a queue
+##Part 5 is in the main function at the bottom 
 
 class randOneFive():
     
@@ -67,14 +67,14 @@ class randOneFive():
         
 
 
-x = randOneFive()
+if __name__ == "__main__":
+    part5 = randOneFive()
 
-x.writer()    
+    part5.writer()    
 
-
-#generate 5 threads running the generateRand()
-for i in range(5):
-    worker = threading.Thread(target=x.generateRand())
-    worker.setDaemon(True)
-    worker.start()
+    #generate 5 threads running the generateRand()
+    for i in range(5):
+        worker = threading.Thread(target=part5.generateRand())
+        worker.setDaemon(True)
+        worker.start()
 
